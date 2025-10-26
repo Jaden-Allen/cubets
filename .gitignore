@@ -3,6 +3,8 @@
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
 .utmp/
+/[Aa]ssets/[Tt]utorial[Ii]nfo/
+/[Aa]ssets/[Ff]onts/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -10,7 +12,12 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/[Pp]roject[Ss]ettings/
+/[Pp]ackages/
 *.log
+*.png
+*.fbx
+*png.meta
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data

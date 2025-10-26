@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43325d03c3c01844f80bb0e0696e5e97, type: 3}
+  m_Name: grass_block
+  m_EditorClassIdentifier: 
+  name: Grass Block
+  id: grass_block
+  materialInstances:
+    renderType: 0
+    definitions:
+    - id: '*'
+      asset: {fileID: 11400000, guid: 9421c817d0a4f2f4b89190302a6e532a, type: 2}
+    - id: south
+      asset: {fileID: 11400000, guid: 3c725dd499a603541a22aabc417ec594, type: 2}
+    - id: north
+      asset: {fileID: 11400000, guid: 3c725dd499a603541a22aabc417ec594, type: 2}
+    - id: east
+      asset: {fileID: 11400000, guid: 3c725dd499a603541a22aabc417ec594, type: 2}
+    - id: west
+      asset: {fileID: 11400000, guid: 3c725dd499a603541a22aabc417ec594, type: 2}
+    - id: top
+      asset: {fileID: 11400000, guid: 9421c817d0a4f2f4b89190302a6e532a, type: 2}
+    - id: bottom
+      asset: {fileID: 11400000, guid: 5f5fa78b964859d4f99eac7344df3d9f, type: 2}
+  geometry: {fileID: 0}
