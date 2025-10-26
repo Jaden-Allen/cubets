@@ -31,7 +31,6 @@ public class Planet : MonoBehaviour
     public PlanetNoiseSettings noiseSettings = new();
 
     private NoiseGenJob noiseGenHandler;
-    private NoiseWrapJob noiseWrapHandler;
 
     
 
@@ -66,21 +65,10 @@ public class Planet : MonoBehaviour
         }
 
         NativeArray<NoiseData> resultArray = noiseGenHandler.CompleteJob();
-
-        noiseWrapHandler = new NoiseWrapJob(planetRadius * ChunkSize, resultArray);
-        noiseWrapHandler.StartJob();
-        while (!noiseWrapHandler.IsJobComplete()) {
-            yield return null;
-        }
-
-        resultArray = noiseWrapHandler.CompleteJob();
         noiseDatas = resultArray.ToArray();
 
         noiseGenHandler.Dispose();
         noiseGenHandler = null;
-
-        noiseWrapHandler.Dispose();
-        noiseWrapHandler = null;
 
         GenerateWorld();
     }
@@ -228,10 +216,6 @@ public class Planet : MonoBehaviour
         if (noiseGenHandler != null) {
             noiseGenHandler.OnDestroy();
             noiseGenHandler = null;
-        }
-        if (noiseWrapHandler != null) {
-            noiseWrapHandler.OnDestroy();
-            noiseWrapHandler = null;
         }
     }
 }

@@ -777,7 +777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6284ca9517b4eea448713a5f8292bb49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  planetRadius: 8
+  planetRadius: 16
   players:
   - {fileID: 1792575073}
   opaqueBlockMaterial: {fileID: 2100000, guid: 4c48dd0b046bd5b4b9d7c3577fb712df, type: 2}
@@ -789,7 +789,7 @@ MonoBehaviour:
   blockGeometryManager: {fileID: 2106899797}
   noiseSettings:
     height:
-      scale: 0.005
+      scale: 0.001
       octaves: 3
       lacunarity: 2
       persistance: 0.5
