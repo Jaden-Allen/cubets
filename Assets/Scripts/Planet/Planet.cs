@@ -101,8 +101,10 @@ public class Planet : MonoBehaviour
         NativeArray<NoiseData> resultArray = noiseGenHandler.CompleteJob();
         noiseDatas = resultArray.ToArray();
 
-        noiseGenHandler.Dispose();
-        noiseGenHandler = null;
+        if (noiseGenHandler != null) {
+            noiseGenHandler.Dispose();
+            noiseGenHandler = null;
+        }
 
         GenerateWorld();
     }

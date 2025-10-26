@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   width: 0.6
-  height: 1.6
+  height: 1.8
   offset: {x: 0, y: 0, z: 0}
 --- !u!1 &1309211251
 GameObject:
@@ -1071,16 +1071,28 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1391436048}
     - target: {fileID: 743434398150834761, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
+      propertyPath: walkSpeed
+      value: 4.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 743434398150834761, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
+      propertyPath: sprintSpeed
+      value: 5.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 743434398150834761, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: playerCollider
       value: 
       objectReference: {fileID: 1277733775}
+    - target: {fileID: 929131810480569077, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 1317446512454363319}
     - target: {fileID: 1088822924584593322, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 1088822924584593322, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.8
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 1088822924584593322, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: m_LocalScale.z
@@ -1088,7 +1100,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1088822924584593322, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.8
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 1405959934264409098, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1132,7 +1144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2633005851037161992, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.2
+      value: 1.62
       objectReference: {fileID: 0}
     - target: {fileID: 5703130082950735715, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
       propertyPath: planet

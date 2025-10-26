@@ -69,22 +69,21 @@ public class NoiseGenJobHandler {
         jobScheduled = false;
         return noiseDatas;
     }
-
-    public void Dispose() {
-        noiseDatas.Dispose();
-        jobScheduled = false;
-    }
     public bool IsJobComplete() {
         if (!jobScheduled)
             return false;
         return jobHandle.IsCompleted;
     }
-
+    public void Dispose() {
+        if (noiseDatas.IsCreated) {
+            noiseDatas.Dispose();
+        }
+        jobScheduled = false;
+    }
     public void OnDestroy() {
         if (jobScheduled) {
-            jobHandle.Complete();
-            if (noiseDatas.IsCreated)
-                noiseDatas.Dispose();
+            if (!jobHandle.IsCompleted) jobHandle.Complete();
         }
+        Dispose();
     }
 }

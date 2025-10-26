@@ -97,7 +97,37 @@ public class BoxVolumeCollider : MonoBehaviour {
 
         return false;
     }
+    public bool IsHeadHitting(Planet planet, float checkDistance = 0.1f) {
+        if (!planet.hasGeneratedWorld) return true;
+        float halfWidth = width * 0.5f;
 
+        // Bottom face world position range
+        Vector3 basePos = transform.position + offset;
+        float topY = basePos.y + height;
+
+        // Four corners at the bottom of the box
+        Vector3[] corners = new Vector3[]
+        {
+            new Vector3(basePos.x - halfWidth, topY, basePos.z - halfWidth),
+            new Vector3(basePos.x + halfWidth, topY, basePos.z - halfWidth),
+            new Vector3(basePos.x - halfWidth, topY, basePos.z + halfWidth),
+            new Vector3(basePos.x + halfWidth, topY, basePos.z + halfWidth)
+        };
+
+        // Check each corner downward
+        foreach (var corner in corners) {
+            // Step down from the corner up to checkDistance
+            Vector3Int voxelPos = Vector3Int.FloorToInt(corner + Vector3.up * checkDistance);
+
+            uint voxel = planet.GetVoxel(voxelPos);
+
+            // Anything solid counts as ground (skip air and water)
+            if (voxel != 0 && voxel != BlockTypes.Water.registryIndex)
+                return true;
+        }
+
+        return false;
+    }
     private void OnDrawGizmos() {
         Gizmos.color = new Color(0.1f, 1f, 0.1f);
         Gizmos.DrawWireCube(transform.position + offset + debugOffset, new Vector3(width, height, width));
