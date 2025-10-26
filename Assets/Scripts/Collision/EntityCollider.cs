@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class BoxVolumeCollider : MonoBehaviour {
+public class EntityCollider : MonoBehaviour {
     public float width = 1f;
     public float height = 1.8f;
     public Vector3 offset;
@@ -8,6 +10,27 @@ public class BoxVolumeCollider : MonoBehaviour {
         get {
             return new Vector3(0f, height / 2f, 0f);
         }
+    }
+    public HashSet<Vector3Int> OccupiedBlocks(Planet planet) {
+        if (!planet.hasGeneratedWorld) return new HashSet<Vector3Int>();
+
+        HashSet<Vector3Int> occupied = new HashSet<Vector3Int>();
+
+        float halfWidth = width * 0.5f;
+
+        Vector3 newPos = transform.position;
+        Vector3 min = newPos + offset + new Vector3(-halfWidth, 0f, -halfWidth);
+        Vector3 max = newPos + offset + new Vector3(halfWidth, height, halfWidth);
+
+        for (int x = Mathf.FloorToInt(min.x); x <= Mathf.FloorToInt(max.x); x++) {
+            for (int y = Mathf.FloorToInt(min.y); y <= Mathf.FloorToInt(max.y); y++) {
+                for (int z = Mathf.FloorToInt(min.z); z <= Mathf.FloorToInt(max.z); z++) {
+                    occupied.Add(new Vector3Int(x, y, z));
+                }
+            }
+        }
+
+        return occupied;
     }
     public bool CheckCollisions(Planet planet, Vector3 sampleOffset, out Vector3 clipping) {
         clipping = Vector3.zero;

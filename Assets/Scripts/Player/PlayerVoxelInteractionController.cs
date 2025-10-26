@@ -4,6 +4,7 @@ public class PlayerVoxelInteractionController : EntityComponent
 {
     public Planet planet;
     public Transform playerCam;
+    public EntityCollider playerCollider;
     public float range = 6f;
 
     public override void OnEntityUpdate(bool ignoreLoops) {
@@ -23,7 +24,11 @@ public class PlayerVoxelInteractionController : EntityComponent
     public void PlaceVoxel() {
         Player player = entity as Player;
         if (player.RaycastBlock(playerCam.position, playerCam.forward, range, out Block block, out Vector3Int normal)) {
-            block.Offset(normal).SetType(BlockTypes.Stone.type);
+            Block offset = block.Offset(normal);
+
+            if (playerCollider.OccupiedBlocks(planet).Contains(offset.position)) return;
+
+            offset.SetType(BlockTypes.Stone.type);
         }
     }
     

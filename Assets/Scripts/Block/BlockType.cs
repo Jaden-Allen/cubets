@@ -8,6 +8,8 @@ public class BlockType : ScriptableObject {
     public string id;
     public BlockMaterialInstancesComponent materialInstances;
     public BlockGeometryAsset geometry;
+    public BlockCollisionComponent collision = new();
+    public BlockSelectionComponent selection = new();
     public virtual void Setup() {}
     public virtual void OnPlaced(BlockPlacedEvent e) {}
     public virtual void OnDestroyed(BlockDestroyedEvent e) {}
@@ -61,6 +63,15 @@ public abstract class BlockRandomTickComponent {
 public class BlockMaterialPropertyDefinition {
     public string id = "*";
     public BlockMaterialPropertyAsset asset;
+}
+[System.Serializable]
+public class BlockCollisionComponent {
+    public bool enabled = true;
+    public List<CubeCollider> colliders = new List<CubeCollider>();
+}
+[System.Serializable]
+public class BlockSelectionComponent {
+    public List<CubeCollider> colliders = new List<CubeCollider>();
 }
 public enum BlockRenderType {
     Opaque,
