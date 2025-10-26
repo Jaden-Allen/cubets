@@ -73,39 +73,32 @@ public class Planet : MonoBehaviour
         GenerateWorld();
     }
     public uint GetVoxel(Vector3Int globalVoxelCoord) {
-
-        // Convert to chunk coordinates
         Vector3Int chunkCoord = GlobalToChunkCoord(globalVoxelCoord);
 
         if (chunks.TryGetValue(chunkCoord, out Chunk chunk)) {
             // Local position within the chunk
             Vector3Int localPos = new Vector3Int(
                 ToLocalIndex(globalVoxelCoord.x),
-                ToLocalIndex(globalVoxelCoord.y), // don't wrap Y
+                ToLocalIndex(globalVoxelCoord.y),
                 ToLocalIndex(globalVoxelCoord.z)
             );
 
             return chunk.GetBlockIndex(localPos);
         }
 
-        // Fallback: procedurally determine block
         if (globalVoxelCoord.y < 0 || globalVoxelCoord.y > 255)
             return BlockTypes.Air.registryIndex;
 
-        // --- Fetch noise data safely ---
-        // noiseDatas is 1D array from job result: index = z * size + x
         int noiseSize = planetRadius * ChunkSize;
 
         if (globalVoxelCoord.x < 0 || globalVoxelCoord.z < 0 ||
             globalVoxelCoord.x >= noiseSize || globalVoxelCoord.z >= noiseSize)
-            return BlockTypes.Air.registryIndex;
+            return BlockTypes.Stone.registryIndex;
 
 
         int index = globalVoxelCoord.z * noiseSize + globalVoxelCoord.x;
         NoiseData n = noiseDatas[index];
 
-        // --- Map noise height to block height ---
-        // Example: base terrain between 40–120 blocks high
         int terrainHeight = Mathf.RoundToInt(Mathf.Lerp(40f, 120f, n.height));
 
         int waterLevel = 64;
