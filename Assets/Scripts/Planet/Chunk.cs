@@ -1,7 +1,7 @@
+using BlockGeometry;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.LightTransport;
 
 public class Chunk {
     public Vector3Int coord;
@@ -109,7 +109,7 @@ public class Chunk {
     }
 
     private void AddCustomGeoDataToChunk(Vector3Int localPos, BlockType block) {
-        if (BlockGeometryManager.GetBlockGeometry(block.geometry.id, out BlockGeometryFile geometry)) {
+        if (BlockGeometryRegistry.GetBlockGeometry(block.geometry.id, out BlockGeometryFile geometry)) {
             geometry.vertices.ForEach(v => { vertices.Add(v + localPos); colors.Add(block.VertexColorPaint(v, localPos + origin, planet)); });
 
             var indicesToAddTo = block.materialInstances.renderType switch {

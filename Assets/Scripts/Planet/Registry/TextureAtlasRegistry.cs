@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TextureAtlasManager : MonoBehaviour
+public class TextureAtlasRegistry : MonoBehaviour
 {
     public List<BlockMaterialPropertyAsset> blockMaterialProperties = new List<BlockMaterialPropertyAsset>();
     public static Dictionary<string, BlockMaterialPropertyAsset> typeIdToMaterialProperty = new Dictionary<string, BlockMaterialPropertyAsset>();

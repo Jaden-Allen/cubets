@@ -18,8 +18,8 @@ public class Planet : MonoBehaviour
     public Material waterMaterial;
 
     public BlockRegistry blockManager;
-    public TextureAtlasManager textureAtlasManager;
-    public BlockGeometryManager blockGeometryManager;
+    public TextureAtlasRegistry textureAtlasManager;
+    public BlockGeometryRegistry blockGeometryManager;
 
     public Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
     public HashSet<Vector3Int> markedDirtySet = new HashSet<Vector3Int>();
@@ -30,7 +30,7 @@ public class Planet : MonoBehaviour
     [Header("Noise Settings")]
     public PlanetNoiseSettings noiseSettings = new();
 
-    private NoiseGenJob noiseGenHandler;
+    private NoiseGenJobHandler noiseGenHandler;
 
     
 
@@ -39,10 +39,10 @@ public class Planet : MonoBehaviour
         textureAtlasManager.Init();
         blockGeometryManager.Init();
 
-        opaqueBlockMaterial.mainTexture = TextureAtlasManager.BlockAtlas;
-        transparentBlockMaterial.mainTexture = TextureAtlasManager.BlockAtlas;
-        vegetationBlockMaterial.mainTexture = TextureAtlasManager.BlockAtlas;
-        waterMaterial.mainTexture = TextureAtlasManager.BlockAtlas;
+        opaqueBlockMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
+        transparentBlockMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
+        vegetationBlockMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
+        waterMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
 
         StartCoroutine(GenerateNoiseData());
     }
@@ -57,7 +57,7 @@ public class Planet : MonoBehaviour
         }
     }
     private IEnumerator GenerateNoiseData() {
-        noiseGenHandler = new NoiseGenJob(planetRadius * ChunkSize, noiseSettings);
+        noiseGenHandler = new NoiseGenJobHandler(planetRadius * ChunkSize, noiseSettings);
         noiseGenHandler.StartJob();
 
         while (!noiseGenHandler.IsJobComplete()) {

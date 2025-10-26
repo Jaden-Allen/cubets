@@ -42,7 +42,7 @@ public class BlockMaterialInstancesComponent {
             def.TryGetValue("*", out d);
 
         // Return rect if found, else empty rect
-        return d != null && TextureAtlasManager.typeIdToRect.TryGetValue(d.asset.id, out var rect)
+        return d != null && TextureAtlasRegistry.typeIdToRect.TryGetValue(d.asset.id, out var rect)
             ? rect
             : new Rect();
     }
