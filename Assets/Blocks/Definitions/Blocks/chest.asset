@@ -24,3 +24,16 @@ MonoBehaviour:
     - id: bottom
       asset: {fileID: 11400000, guid: b265b3802c13c4f4f85975e15d7ab3a2, type: 2}
   geometry: {fileID: 11400000, guid: beec4952081e4c84380666f45a020f1f, type: 2}
+  collision:
+    enabled: 1
+    colliders:
+    - width: 1
+      height: 1
+      length: 1
+      offset: {x: 0, y: 0, z: 0}
+  selection:
+    colliders:
+    - width: 1
+      height: 1
+      length: 1
+      offset: {x: 0.5, y: 0, z: 0.5}

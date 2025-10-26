@@ -1,39 +1,62 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class WireframeRenderer : MonoBehaviour
-{
-    public CubeCollider selectionBox;
-    public Material lineMaterial;
-    public float thickness = 0.05f;
+public class WireframeRenderer : MonoBehaviour {
+    [SerializeField] private Material lineMaterial;
+
+    private readonly List<SelectionBox> selectionBoxes = new();
+
+    public static WireframeRenderer Instance { get; private set; }
+
+    private void Awake() {
+        if (Instance != null && Instance != this) {
+            Destroy(this);
+            return;
+        }
+        Instance = this;
+    }
+
+    public void AddSelection(SelectionBox selectionBox) {
+        if (selectionBox != null)
+            selectionBoxes.Add(selectionBox);
+    }
 
     private void OnRenderObject() {
-        if (!lineMaterial) return;
-        lineMaterial.SetPass(0);
+        if (!lineMaterial || selectionBoxes.Count == 0) return;
 
-        Camera cam = Camera.current;
+        Camera cam = Camera.main;
         if (cam == null) return;
 
-        var lines = selectionBox.GetLines();
+        // Copy the list so modifications during iteration won't throw exceptions
+        var boxesToDraw = new List<SelectionBox>(selectionBoxes);
+        selectionBoxes.Clear();
+
+        lineMaterial.SetPass(0);
         GL.PushMatrix();
         GL.MultMatrix(transform.localToWorldMatrix);
 
-        foreach (var l in lines) {
-            DrawThickLine(l.a, l.b, thickness, cam);
+        GL.Begin(GL.LINES);
+        foreach (var selectionBox in boxesToDraw) {
+            foreach (var collider in selectionBox.colliders) {
+                foreach (var line in collider.GetLines()) {
+                    GL.Vertex(line.a + selectionBox.position);
+                    GL.Vertex(line.b + selectionBox.position);
+                }
+            }
         }
+        GL.End();
 
         GL.PopMatrix();
     }
+}
 
-    void DrawThickLine(Vector3 a, Vector3 b, float thickness, Camera cam) {
-        Vector3 dir = (b - a).normalized;
-        Vector3 side = Vector3.Cross(dir, cam.transform.forward).normalized * thickness * 0.5f;
+[System.Serializable]
+public class SelectionBox {
+    public List<CubeCollider> colliders { get; }
+    public Vector3 position { get; }
 
-        GL.Begin(GL.QUADS);
-        GL.Color(Color.green);
-        GL.Vertex(a - side);
-        GL.Vertex(a + side);
-        GL.Vertex(b + side);
-        GL.Vertex(b - side);
-        GL.End();
+    public SelectionBox(List<CubeCollider> colliders, Vector3 position) {
+        this.colliders = colliders ?? new List<CubeCollider>();
+        this.position = position;
     }
 }

@@ -20,3 +20,16 @@ MonoBehaviour:
     - id: '*'
       asset: {fileID: 11400000, guid: 0cc6327a41899aa43a16dac8b51725f7, type: 2}
   geometry: {fileID: 0}
+  collision:
+    enabled: 1
+    colliders:
+    - width: 1
+      height: 1
+      length: 1
+      offset: {x: 0, y: 0, z: 0}
+  selection:
+    colliders:
+    - width: 1
+      height: 1
+      length: 1
+      offset: {x: 0.5, y: 0, z: 0.5}

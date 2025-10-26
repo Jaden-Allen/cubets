@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerVoxelInteractionController : EntityComponent
@@ -8,6 +9,10 @@ public class PlayerVoxelInteractionController : EntityComponent
     public float range = 6f;
 
     public override void OnEntityUpdate(bool ignoreLoops) {
+        if (ignoreLoops) return;
+
+        RenderHighlights();
+
         if (Input.GetMouseButtonDown(0)) {
             DestroyVoxel();
         }
@@ -31,5 +36,10 @@ public class PlayerVoxelInteractionController : EntityComponent
             offset.SetType(BlockTypes.Stone.type);
         }
     }
-    
+    public void RenderHighlights() {
+        Player player = entity as Player;
+        if (player.RaycastBlock(playerCam.position, playerCam.forward, range, out Block block, out Vector3Int normal)) {
+            WireframeRenderer.Instance.AddSelection(new SelectionBox(block.blockData.selection.colliders, block.position + new Vector3(0.5f, 0f, 0.5f)));
+        }
+    }
 }

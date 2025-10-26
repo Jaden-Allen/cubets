@@ -18,3 +18,8 @@ MonoBehaviour:
     renderType: 4
     definitions: []
   geometry: {fileID: 0}
+  collision:
+    enabled: 0
+    colliders: []
+  selection:
+    colliders: []

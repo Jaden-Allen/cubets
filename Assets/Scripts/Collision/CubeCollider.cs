@@ -4,9 +4,15 @@ using UnityEngine;
 [System.Serializable]
 public class CubeCollider {
     public float width = 1f;
-    public float height = 1.8f;
+    public float height = 1f;
+    public float length = 1f;
     public Vector3 offset;
 
+    public CubeCollider(float width = 1f, float height = 1f, float length = 1f) {
+        this.width = width;
+        this.height = height;
+        this.length = length;
+    }
     [System.Serializable]
     public class Line {
         public Vector3 a;
@@ -16,26 +22,26 @@ public class CubeCollider {
             this.b = b;
         }
     }
-
     public List<Line> GetLines() {
         List<Line> lines = new List<Line>();
 
         float halfWidth = width * 0.5f;
+        float halfLength = length * 0.5f;
 
         // 8 corners of the box in local space
         Vector3[] corners =
         {
             // Bottom
-            new Vector3(-halfWidth, 0f, -halfWidth),
-            new Vector3( halfWidth, 0f, -halfWidth),
-            new Vector3( halfWidth, 0f,  halfWidth),
-            new Vector3(-halfWidth, 0f,  halfWidth),
+            new Vector3(-halfWidth, 0f, -halfLength),
+            new Vector3( halfWidth, 0f, -halfLength),
+            new Vector3( halfWidth, 0f,  halfLength),
+            new Vector3(-halfWidth, 0f,  halfLength),
 
             // Top
-            new Vector3(-halfWidth, height, -halfWidth),
-            new Vector3( halfWidth, height, -halfWidth),
-            new Vector3( halfWidth, height,  halfWidth),
-            new Vector3(-halfWidth, height,  halfWidth)
+            new Vector3(-halfWidth, height, -halfLength),
+            new Vector3( halfWidth, height, -halfLength),
+            new Vector3( halfWidth, height,  halfLength),
+            new Vector3(-halfWidth, height,  halfLength)
         };
 
         // Apply offset to all corners
@@ -63,4 +69,3 @@ public class CubeCollider {
         return lines;
     }
 }
-

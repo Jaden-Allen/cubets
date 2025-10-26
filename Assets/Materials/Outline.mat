@@ -97,7 +97,7 @@ Material:
     - _CastShadows: 0
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _Cull: 1
+    - _Cull: 2
     - _Curvature: 0
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
