@@ -126,10 +126,13 @@ public struct NoiseParallelJob : IJobParallelFor {
         int localX = index % width;
         int localZ = index / width;
 
-        // World-space coordinates (normalized)
-        float worldX = (float)localX / width;
-        float worldZ = (float)localZ / height;
-        float2 samplePos = new float2(localX, localZ);
+        float u = (float)localX / width;
+        float v = (float)localZ / height;
+
+        float2 xCircle = new float2(math.cos(u * math.PI * 2f), math.sin(u * math.PI * 2f)) * width;
+        float2 zCircle = new float2(math.cos(v * math.PI * 2f), math.sin(v * math.PI * 2f)) * height;
+
+        float2 samplePos = xCircle + zCircle;
 
         // === Sample controlling noises ===
         float baseHeight = FBM(samplePos * heightScale, heightOctaves, heightLacunarity, heightPersistance);
@@ -164,6 +167,4 @@ public struct NoiseParallelJob : IJobParallelFor {
         float normalized = sum / amplitudeSum;
         return math.saturate(normalized * 0.5f + 0.5f);
     }
-
-
 }
