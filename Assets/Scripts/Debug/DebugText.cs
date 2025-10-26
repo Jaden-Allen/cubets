@@ -9,7 +9,7 @@ public class DebugText : MonoBehaviour
     public TMP_Text coordsText;
     public TMP_Text targettedBlockText;
     private void Update() {
-        return;
+        if (!planet.hasGeneratedWorld) return;
 
         Vector3 coords = player.transform.position;
         coords.x = Mathf.Round(coords.x * 10f) / 10f;

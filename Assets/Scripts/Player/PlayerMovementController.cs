@@ -117,6 +117,4 @@ public class PlayerMovementController : EntityComponent {
         }
         return false;
     }
-
-
 }

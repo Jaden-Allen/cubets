@@ -4,10 +4,14 @@ public class BoxVolumeCollider : MonoBehaviour {
     public float width = 1f;
     public float height = 1.8f;
     public Vector3 offset;
-
+    private Vector3 debugOffset {
+        get {
+            return new Vector3(0f, height / 2f, 0f);
+        }
+    }
     public bool CheckCollisions(Planet planet, Vector3 sampleOffset, out Vector3 clipping) {
         clipping = Vector3.zero;
-        return true;
+        if (!planet.hasGeneratedWorld) return true;
 
         float halfWidth = width * 0.5f;
 
@@ -63,8 +67,7 @@ public class BoxVolumeCollider : MonoBehaviour {
         return foundCollision;
     }
     public bool IsGrounded(Planet planet, float checkDistance = 0.1f) {
-        return true;
-
+        if (!planet.hasGeneratedWorld) return true;
         float halfWidth = width * 0.5f;
 
         // Bottom face world position range
@@ -74,10 +77,10 @@ public class BoxVolumeCollider : MonoBehaviour {
         // Four corners at the bottom of the box
         Vector3[] corners = new Vector3[]
         {
-        new Vector3(basePos.x - halfWidth, bottomY, basePos.z - halfWidth),
-        new Vector3(basePos.x + halfWidth, bottomY, basePos.z - halfWidth),
-        new Vector3(basePos.x - halfWidth, bottomY, basePos.z + halfWidth),
-        new Vector3(basePos.x + halfWidth, bottomY, basePos.z + halfWidth)
+            new Vector3(basePos.x - halfWidth, bottomY, basePos.z - halfWidth),
+            new Vector3(basePos.x + halfWidth, bottomY, basePos.z - halfWidth),
+            new Vector3(basePos.x - halfWidth, bottomY, basePos.z + halfWidth),
+            new Vector3(basePos.x + halfWidth, bottomY, basePos.z + halfWidth)
         };
 
         // Check each corner downward
@@ -97,6 +100,6 @@ public class BoxVolumeCollider : MonoBehaviour {
 
     private void OnDrawGizmos() {
         Gizmos.color = new Color(0.1f, 1f, 0.1f);
-        Gizmos.DrawWireCube(transform.position + offset, new Vector3(width, height, width));
+        Gizmos.DrawWireCube(transform.position + offset + debugOffset, new Vector3(width, height, width));
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -32,7 +33,7 @@ public class Planet : MonoBehaviour
 
     private NoiseGenJobHandler noiseGenHandler;
 
-    
+    public bool hasGeneratedWorld = false;
 
     private void Awake() {
         blockManager.Init();
@@ -43,7 +44,8 @@ public class Planet : MonoBehaviour
         transparentBlockMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
         vegetationBlockMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
         waterMaterial.mainTexture = TextureAtlasRegistry.BlockAtlas;
-
+    }
+    private void Start() {
         StartCoroutine(GenerateNoiseData());
     }
     private void GenerateWorld() {
@@ -55,7 +57,39 @@ public class Planet : MonoBehaviour
                 }
             }
         }
+
+        SpawnPlayers();
+
+        hasGeneratedWorld = true;
     }
+    private int GetTerrainSurface(Vector3 position) {
+        Vector3Int voxelCoord = Vector3Int.FloorToInt(position);
+        int index = GetVoxelIndex(voxelCoord);
+        return Mathf.RoundToInt(Mathf.Lerp(40f, 120f, noiseDatas[index].height));
+    }
+    private void SpawnPlayers(float radius = 10f) {
+        int playerCount = players.Count;
+
+        Vector3 planetCenter = new Vector3(planetRadius * ChunkSize / 2f, 0f, planetRadius * ChunkSize / 2f);
+
+        for (int i = 0; i < playerCount; i++) {
+            float angleDeg = 360f * i / playerCount;
+            float angleRad = math.radians(angleDeg);
+
+            Vector3 spawnPosition = new Vector3(
+                Mathf.Cos(angleRad) * radius,
+                0f,                     
+                Mathf.Sin(angleRad) * radius
+            );
+
+            int surface = GetTerrainSurface(spawnPosition);
+            spawnPosition.y = surface + 1f;
+
+            Player player = players[i];
+            player.Teleport(spawnPosition + planetCenter);
+        }
+    }
+
     private IEnumerator GenerateNoiseData() {
         noiseGenHandler = new NoiseGenJobHandler(planetRadius * ChunkSize, noiseSettings);
         noiseGenHandler.StartJob();
@@ -99,7 +133,7 @@ public class Planet : MonoBehaviour
         int index = globalVoxelCoord.z * noiseSize + globalVoxelCoord.x;
         NoiseData n = noiseDatas[index];
 
-        int terrainHeight = Mathf.RoundToInt(Mathf.Lerp(40f, 120f, n.height));
+        int terrainHeight = Mathf.RoundToInt(Mathf.Lerp(40f, 120f, n.height)); 
 
         int waterLevel = 64;
 
@@ -135,7 +169,6 @@ public class Planet : MonoBehaviour
             var chunk = markedDirtyQueue.Dequeue();
 
             chunk.RebuildChunk();
-            Debug.Log("Rebuilt Chunk: " + chunk.chunkObject);
             markedDirtySet.Remove(chunk.coord);
             builtCount++;
             
@@ -156,7 +189,6 @@ public class Planet : MonoBehaviour
                 ToLocalIndex(globalVoxelCoord.z)
             );
 
-            Debug.Log($"Block at {localPos} changed.");
             chunk.SetBlockType(localPos, voxelType);
 
             if (markedDirtySet.Add(chunkCoord)) {
@@ -186,6 +218,11 @@ public class Planet : MonoBehaviour
         new Vector3Int( 0, 1, 0),
         new Vector3Int( 0, -1, 0),
     };
+    public int GetVoxelIndex(Vector3Int voxelCoord) {
+        WrapCoord(ref voxelCoord);
+        int noiseSize = planetRadius * ChunkSize;
+        return voxelCoord.z * noiseSize + voxelCoord.x;
+    }
     public Chunk GetChunk(Vector3Int coord) {
         Vector3Int chunkCoord = new();
         return chunks[chunkCoord];
@@ -199,6 +236,43 @@ public class Planet : MonoBehaviour
             }
         }
 
+    }
+    public void WrapCoord(ref Vector3Int pos) {
+        int worldSize = planetRadius * ChunkSize;
+
+        pos.x = ((pos.x % worldSize) + worldSize) % worldSize;
+        pos.z = ((pos.z % worldSize) + worldSize) % worldSize;
+    }
+    public void WrapCoord(ref Vector3 pos) {
+        float worldSize = planetRadius * ChunkSize;
+
+        pos.x = Mathf.Repeat(pos.x, worldSize);
+        pos.z = Mathf.Repeat(pos.z, worldSize);
+    }
+    public void WrapChunkCoord(ref Vector3Int chunkPos) {
+        int worldChunkSize = planetRadius;
+
+        chunkPos.x = ((chunkPos.x % worldChunkSize) + worldChunkSize) % worldChunkSize;
+        chunkPos.z = ((chunkPos.z % worldChunkSize) + worldChunkSize) % worldChunkSize;
+    }
+    public void WrapChunkCoord(ref Vector3 chunkPos) {
+        float worldChunkSize = planetRadius;
+
+        chunkPos.x = Mathf.Repeat(chunkPos.x, worldChunkSize);
+        chunkPos.z = Mathf.Repeat(chunkPos.z, worldChunkSize);
+    }
+    public Vector3Int GetWrappedChunkCoord(Vector3 worldPos) {
+        int worldSize = planetRadius * ChunkSize;
+        int chunkSize = ChunkSize;
+
+        float wrappedX = Mathf.Repeat(worldPos.x, worldSize);
+        float wrappedZ = Mathf.Repeat(worldPos.z, worldSize);
+
+        int chunkX = Mathf.FloorToInt(wrappedX / chunkSize);
+        int chunkZ = Mathf.FloorToInt(wrappedZ / chunkSize);
+        int chunkY = Mathf.FloorToInt(worldPos.y / chunkSize);
+
+        return new Vector3Int(chunkX, chunkY, chunkZ);
     }
     private void OnDestroy() {
         foreach (var chunk in chunks.Values) {

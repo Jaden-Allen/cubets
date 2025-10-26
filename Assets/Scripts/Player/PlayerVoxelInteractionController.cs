@@ -17,7 +17,6 @@ public class PlayerVoxelInteractionController : EntityComponent
     public void DestroyVoxel() {
         Player player = entity as Player;
         if (player.RaycastBlock(playerCam.position, playerCam.forward, range, out Block block, out Vector3Int normal)) {
-            Debug.Log("Found block to destroy");
             block.SetType(BlockTypes.Air.type);
         }
     }
@@ -27,16 +26,5 @@ public class PlayerVoxelInteractionController : EntityComponent
             block.Offset(normal).SetType(BlockTypes.Stone.type);
         }
     }
-    private void OnDrawGizmos() {
-        return;
-        if (!Application.isPlaying) return;
-
-        Player player = entity as Player;
-        if (player.RaycastBlock(playerCam.position, playerCam.forward, range, out Block block, out Vector3Int normal)) {
-            Gizmos.color = Color.red;
-            Gizmos.DrawCube(block.position + Vector3.one * 0.5f, Vector3.one * 1.001f);
-            Gizmos.color = Color.green;
-            Gizmos.DrawCube(block.position + Vector3.one * 0.5f + normal, Vector3.one);
-        }
-    }
+    
 }
