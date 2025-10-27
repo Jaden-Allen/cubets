@@ -4,16 +4,14 @@ public class Player : Entity
 {
     public Planet planet;
     public Camera playerCam;
+    public EntityCollider playerCollider;
 
     public bool RaycastBlock(Vector3 position, Vector3 direction, float distance, out Block block, out Vector3Int normal) {
-        if (!planet.hasGeneratedWorld) {
-            block = null;
-            normal = Vector3Int.zero;
-            return false;
-        }
-
         block = null;
         normal = Vector3Int.zero;
+
+        if (!planet.hasGeneratedWorld)
+            return false;
 
         direction.Normalize();
 
@@ -28,24 +26,25 @@ public class Player : Entity
             currentPos += direction * step;
 
             Vector3Int voxel = Vector3Int.FloorToInt(currentPos);
-            if (voxel != lastVoxel) {
-                Block testBlock = planet.GetBlock(voxel);
-                if (testBlock != null && testBlock.typeId != "air") {
-                    block = testBlock;
 
-                    Vector3Int delta = voxel - lastVoxel;
-                    normal = -delta;
-                    normal.Clamp(Vector3Int.one * -1, Vector3Int.one);
+            Block testBlock = planet.GetBlock(voxel);
+            if (testBlock != null && !testBlock.isAir && testBlock.typeId != "water") {
+                foreach (var c in testBlock.blockData.selection.colliders) {
+                    if (c.Overlaps(currentPos, voxel + new Vector3(0.5f, 0f, 0.5f), direction, out normal)) {
+                        block = testBlock;
 
-                    return true;
+                        return true;
+                    }
                 }
-
-                lastVoxel = voxel;
             }
+
+            if (lastVoxel != voxel)
+                lastVoxel = voxel;
         }
 
         return false;
     }
+
     public void Teleport(Vector3 position) {
         transform.position = position;
     }

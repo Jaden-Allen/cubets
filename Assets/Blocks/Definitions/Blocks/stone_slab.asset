@@ -10,26 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43325d03c3c01844f80bb0e0696e5e97, type: 3}
-  m_Name: dirt
+  m_Name: stone_slab
   m_EditorClassIdentifier: 
-  name: Dirt
-  id: dirt
+  name: Stone Slab
+  id: stone_slab
   materialInstances:
     renderType: 0
     definitions:
     - id: '*'
-      asset: {fileID: 11400000, guid: 5f5fa78b964859d4f99eac7344df3d9f, type: 2}
-  geometry: {fileID: 0}
+      asset: {fileID: 11400000, guid: 4b0cc2cadc380cc4dac7eb7e0dd0db6b, type: 2}
+  geometry: {fileID: 11400000, guid: e2b0d6a60d10209428c2c8bcb800beb9, type: 2}
   collision:
     enabled: 1
     colliders:
     - width: 1
-      height: 1
+      height: 0.5
       length: 1
       offset: {x: 0, y: 0, z: 0}
   selection:
     colliders:
     - width: 1
-      height: 1
+      height: 0.5
       length: 1
       offset: {x: 0, y: 0, z: 0}

@@ -3,8 +3,12 @@ using UnityEngine;
 
 public class WireframeRenderer : MonoBehaviour {
     [SerializeField] private Material lineMaterial;
+    [SerializeField] private Material collisionDebugMat;
+
+    public bool debugCollisions = false;
 
     private readonly List<SelectionBox> selectionBoxes = new();
+    private readonly List<SelectionBox> debugSelectionBoxes = new();
 
     public static WireframeRenderer Instance { get; private set; }
 
@@ -20,6 +24,10 @@ public class WireframeRenderer : MonoBehaviour {
         if (selectionBox != null)
             selectionBoxes.Add(selectionBox);
     }
+    public void AddDebugSelection(SelectionBox selectionBox) {
+        if (selectionBox != null)
+            debugSelectionBoxes.Add(selectionBox);
+    }
 
     private void OnRenderObject() {
         if (!lineMaterial || selectionBoxes.Count == 0) return;
@@ -27,13 +35,10 @@ public class WireframeRenderer : MonoBehaviour {
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        // Copy the list so modifications during iteration won't throw exceptions
         var boxesToDraw = new List<SelectionBox>(selectionBoxes);
         selectionBoxes.Clear();
 
         lineMaterial.SetPass(0);
-        GL.PushMatrix();
-        GL.MultMatrix(transform.localToWorldMatrix);
 
         GL.Begin(GL.LINES);
         foreach (var selectionBox in boxesToDraw) {
@@ -46,7 +51,21 @@ public class WireframeRenderer : MonoBehaviour {
         }
         GL.End();
 
-        GL.PopMatrix();
+        boxesToDraw = new List<SelectionBox>(debugSelectionBoxes);
+        debugSelectionBoxes.Clear();
+
+        collisionDebugMat.SetPass(0);
+
+        GL.Begin(GL.LINES);
+        foreach (var selectionBox in boxesToDraw) {
+            foreach (var collider in selectionBox.colliders) {
+                foreach (var line in collider.GetLines()) {
+                    GL.Vertex(line.a + selectionBox.position);
+                    GL.Vertex(line.b + selectionBox.position);
+                }
+            }
+        }
+        GL.End();
     }
 }
 

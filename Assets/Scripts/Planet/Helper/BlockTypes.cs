@@ -16,5 +16,7 @@ public static class BlockTypes {
     public static BlockTypeEnum OakLog => new BlockTypeEnum() { typeId = "oak_log", registryIndex = 8, type = BlockRegistry.indexToBlock[8] };
     public static BlockTypeEnum Sand => new BlockTypeEnum() { typeId = "sand", registryIndex = 9, type = BlockRegistry.indexToBlock[9] };
     public static BlockTypeEnum Stone => new BlockTypeEnum() { typeId = "stone", registryIndex = 10, type = BlockRegistry.indexToBlock[10] };
-    public static BlockTypeEnum Water => new BlockTypeEnum() { typeId = "water", registryIndex = 11, type = BlockRegistry.indexToBlock[11] };
+    public static BlockTypeEnum StoneSlab => new BlockTypeEnum() { typeId = "stone_slab", registryIndex = 11, type = BlockRegistry.indexToBlock[11] };
+    public static BlockTypeEnum StoneStair => new BlockTypeEnum() { typeId = "stone_stair", registryIndex = 12, type = BlockRegistry.indexToBlock[12] };
+    public static BlockTypeEnum Water => new BlockTypeEnum() { typeId = "water", registryIndex = 13, type = BlockRegistry.indexToBlock[13] };
 }

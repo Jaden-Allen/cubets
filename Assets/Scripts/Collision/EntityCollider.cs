@@ -1,156 +1,120 @@
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class EntityCollider : MonoBehaviour {
     public float width = 1f;
     public float height = 1.8f;
     public Vector3 offset;
-    private Vector3 debugOffset {
-        get {
-            return new Vector3(0f, height / 2f, 0f);
-        }
-    }
+    private Vector3 debugOffset => new Vector3(0f, height / 2f, 0f);
+
+    public Vector3 size => new Vector3(width, height, width);
+    public Vector3 center => size / 2f + offset;
+    public Vector3 min => new Vector3(-(width / 2f), 0f, -(width / 2f)) + offset;
+    public Vector3 max => min + size;
+
     public HashSet<Vector3Int> OccupiedBlocks(Planet planet) {
-        if (!planet.hasGeneratedWorld) return new HashSet<Vector3Int>();
-
         HashSet<Vector3Int> occupied = new HashSet<Vector3Int>();
-
-        float halfWidth = width * 0.5f;
-
-        Vector3 newPos = transform.position;
-        Vector3 min = newPos + offset + new Vector3(-halfWidth, 0f, -halfWidth);
-        Vector3 max = newPos + offset + new Vector3(halfWidth, height, halfWidth);
-
-        for (int x = Mathf.FloorToInt(min.x); x <= Mathf.FloorToInt(max.x); x++) {
-            for (int y = Mathf.FloorToInt(min.y); y <= Mathf.FloorToInt(max.y); y++) {
-                for (int z = Mathf.FloorToInt(min.z); z <= Mathf.FloorToInt(max.z); z++) {
+        if (!planet.hasGeneratedWorld) return occupied;
+        
+        for (int x = Mathf.FloorToInt(min.x); x <= Mathf.FloorToInt(max.x); x++)
+            for (int y = Mathf.FloorToInt(min.y); y <= Mathf.FloorToInt(max.y); y++)
+                for (int z = Mathf.FloorToInt(min.z); z <= Mathf.FloorToInt(max.z); z++)
                     occupied.Add(new Vector3Int(x, y, z));
-                }
-            }
-        }
 
         return occupied;
     }
-    public bool CheckCollisions(Planet planet, Vector3 sampleOffset, out Vector3 clipping) {
-        clipping = Vector3.zero;
+    public bool IsColliding(CubeCollider cubeCollider, Vector3 position, Vector3 sampleOffset) {
+        Vector3 _min = min + transform.position + sampleOffset;
+        Vector3 _max = max + transform.position + sampleOffset;
+
+        Vector3 cubeMin = cubeCollider.min + position;
+        Vector3 cubeMax = cubeCollider.max + position;
+
+        bool overlapX = _min.x <= cubeMax.x && _max.x >= cubeMin.x;
+        bool overlapY = _min.y <= cubeMax.y && _max.y >= cubeMin.y;
+        bool overlapZ = _min.z <= cubeMax.z && _max.z >= cubeMin.z;
+
+        return overlapX && overlapY && overlapZ;
+    }
+    public bool CheckCollisions(Planet planet, Vector3 sampleOffset) {
         if (!planet.hasGeneratedWorld) return true;
 
-        float halfWidth = width * 0.5f;
-
-        bool foundCollision = false;
-        Vector3 correction = Vector3.zero;
-        int samples = 0;
-
-        // Apply the test offset to the collider position
         Vector3 newPos = transform.position + sampleOffset;
 
-        Vector3 min = newPos + offset + new Vector3(-halfWidth, 0f, -halfWidth);
-        Vector3 max = newPos + offset + new Vector3(halfWidth, height, halfWidth);
+        Vector3 _min = newPos + min;
+        Vector3 _max = newPos + max;
 
-        for (int x = Mathf.FloorToInt(min.x); x <= Mathf.FloorToInt(max.x); x++) {
-            for (int y = Mathf.FloorToInt(min.y); y <= Mathf.FloorToInt(max.y); y++) {
-                for (int z = Mathf.FloorToInt(min.z); z <= Mathf.FloorToInt(max.z); z++) {
-                    uint voxelIndex = planet.GetVoxel(new Vector3Int(x, y, z));
-
-                    if (voxelIndex == 0 || voxelIndex == BlockTypes.Water.registryIndex)
+        for (int x = Mathf.FloorToInt(_min.x); x <= Mathf.FloorToInt(_max.x); x++) {
+            for (int y = Mathf.FloorToInt(_min.y); y <= Mathf.FloorToInt(_max.y); y++) {
+                for (int z = Mathf.FloorToInt(_min.z); z <= Mathf.FloorToInt(_max.z); z++) {
+                    Vector3Int voxelPos = new Vector3Int(x, y, z);
+                    Block block = planet.GetBlock(voxelPos);
+                    if (block == null || block.isAir || !block.blockData.collision.enabled)
                         continue;
 
-                    Vector3 voxelMin = new Vector3(x, y, z);
-                    Vector3 voxelMax = voxelMin + Vector3.one;
-
-                    float overlapX = Mathf.Min(max.x, voxelMax.x) - Mathf.Max(min.x, voxelMin.x);
-                    float overlapY = Mathf.Min(max.y, voxelMax.y) - Mathf.Max(min.y, voxelMin.y);
-                    float overlapZ = Mathf.Min(max.z, voxelMax.z) - Mathf.Max(min.z, voxelMin.z);
-
-                    if (overlapX > 0 && overlapY > 0 && overlapZ > 0) {
-                        foundCollision = true;
-                        samples++;
-
-                        // find smallest overlap axis
-                        float minOverlap = overlapX;
-                        Vector3 pushDir = Vector3.right * Mathf.Sign((min.x + max.x) * 0.5f - (x + 0.5f)) * -1f;
-
-                        if (overlapY < minOverlap) {
-                            minOverlap = overlapY;
-                            pushDir = Vector3.up * Mathf.Sign((min.y + max.y) * 0.5f - (y + 0.5f)) * -1f;
-                        }
-                        if (overlapZ < minOverlap) {
-                            minOverlap = overlapZ;
-                            pushDir = Vector3.forward * Mathf.Sign((min.z + max.z) * 0.5f - (z + 0.5f)) * -1f;
-                        }
-
-                        correction += pushDir * minOverlap;
+                    Vector3 voxelBase = voxelPos + new Vector3(0.5f, 0f, 0.5f);
+                    foreach (var cube in block.blockData.collision.colliders) {
+                        if (IsColliding(cube, voxelBase, sampleOffset)) return true;
                     }
                 }
             }
         }
 
-        clipping = samples > 0 ? correction / samples : Vector3.zero;
-        return foundCollision;
+        return false;
     }
     public bool IsGrounded(Planet planet, float checkDistance = 0.1f) {
         if (!planet.hasGeneratedWorld) return true;
-        float halfWidth = width * 0.5f;
 
-        // Bottom face world position range
         Vector3 basePos = transform.position + offset;
-        float bottomY = basePos.y;
 
-        // Four corners at the bottom of the box
-        Vector3[] corners = new Vector3[]
-        {
-            new Vector3(basePos.x - halfWidth, bottomY, basePos.z - halfWidth),
-            new Vector3(basePos.x + halfWidth, bottomY, basePos.z - halfWidth),
-            new Vector3(basePos.x - halfWidth, bottomY, basePos.z + halfWidth),
-            new Vector3(basePos.x + halfWidth, bottomY, basePos.z + halfWidth)
+        Vector3[] corners = new Vector3[] {
+            new Vector3(min.x + basePos.x, basePos.y - checkDistance, min.z + basePos.z),
+            new Vector3(max.x + basePos.x, basePos.y - checkDistance, min.z + basePos.z),
+            new Vector3(min.x + basePos.x, basePos.y - checkDistance, max.z + basePos.z),
+            new Vector3(max.x + basePos.x, basePos.y - checkDistance, max.z + basePos.z)
         };
 
-        // Check each corner downward
         foreach (var corner in corners) {
-            // Step down from the corner up to checkDistance
-            Vector3Int voxelPos = Vector3Int.FloorToInt(corner + Vector3.down * checkDistance);
-            
-            uint voxel = planet.GetVoxel(voxelPos);
+            Vector3Int voxelPos = Vector3Int.FloorToInt(new Vector3(corner.x, corner.y, corner.z));
+            Block block = planet.GetBlock(voxelPos);
+            if (block == null || !block.blockData.collision.enabled) continue;
 
-            // Anything solid counts as ground (skip air and water)
-            if (voxel != 0 && voxel != BlockTypes.Water.registryIndex)
-                return true;
+            Vector3 voxelBase = voxelPos + new Vector3(0.5f, 0f, 0.5f);
+            foreach (var cube in block.blockData.collision.colliders) {
+                if (IsColliding(cube, voxelBase, Vector3.down * checkDistance)) return true;
+            }
         }
 
         return false;
     }
     public bool IsHeadHitting(Planet planet, float checkDistance = 0.1f) {
         if (!planet.hasGeneratedWorld) return true;
-        float halfWidth = width * 0.5f;
 
-        // Bottom face world position range
         Vector3 basePos = transform.position + offset;
-        float topY = basePos.y + height;
 
-        // Four corners at the bottom of the box
-        Vector3[] corners = new Vector3[]
-        {
-            new Vector3(basePos.x - halfWidth, topY, basePos.z - halfWidth),
-            new Vector3(basePos.x + halfWidth, topY, basePos.z - halfWidth),
-            new Vector3(basePos.x - halfWidth, topY, basePos.z + halfWidth),
-            new Vector3(basePos.x + halfWidth, topY, basePos.z + halfWidth)
+        Vector3[] corners = new Vector3[] {
+            new Vector3(min.x + basePos.x, basePos.y + height + checkDistance, min.z + basePos.z),
+            new Vector3(max.x + basePos.x, basePos.y + height + checkDistance, min.z + basePos.z),
+            new Vector3(min.x + basePos.x, basePos.y + height + checkDistance, max.z + basePos.z),
+            new Vector3(max.x + basePos.x, basePos.y + height + checkDistance, max.z + basePos.z)
         };
 
-        // Check each corner downward
         foreach (var corner in corners) {
-            // Step down from the corner up to checkDistance
-            Vector3Int voxelPos = Vector3Int.FloorToInt(corner + Vector3.up * checkDistance);
+            Vector3Int voxelPos = Vector3Int.FloorToInt(new Vector3(corner.x, corner.y, corner.z));
+            Block block = planet.GetBlock(voxelPos);
+            if (block == null || !block.blockData.collision.enabled) continue;
 
-            uint voxel = planet.GetVoxel(voxelPos);
-
-            // Anything solid counts as ground (skip air and water)
-            if (voxel != 0 && voxel != BlockTypes.Water.registryIndex)
-                return true;
+            Vector3 voxelBase = voxelPos + new Vector3(0.5f, 0f, 0.5f);
+            foreach (var cube in block.blockData.collision.colliders) {
+                if (IsColliding(cube, voxelBase, Vector3.up * checkDistance)) return true;
+            }
         }
 
         return false;
     }
+
     private void OnDrawGizmos() {
         Gizmos.color = new Color(0.1f, 1f, 0.1f);
         Gizmos.DrawWireCube(transform.position + offset + debugOffset, new Vector3(width, height, width));

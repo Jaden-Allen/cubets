@@ -10,6 +10,7 @@ public class PlayerVoxelInteractionController : EntityComponent
 
     public override void OnEntityUpdate(bool ignoreLoops) {
         if (ignoreLoops) return;
+        if (!planet.hasGeneratedWorld) return;
 
         RenderHighlights();
 
@@ -31,15 +32,27 @@ public class PlayerVoxelInteractionController : EntityComponent
         if (player.RaycastBlock(playerCam.position, playerCam.forward, range, out Block block, out Vector3Int normal)) {
             Block offset = block.Offset(normal);
 
-            if (playerCollider.OccupiedBlocks(planet).Contains(offset.position)) return;
+            if (offset == null) return;
 
-            offset.SetType(BlockTypes.Stone.type);
+            if (offset.blockData.collision.enabled) {
+                foreach(var c in offset.blockData.collision.colliders) {
+                    if(playerCollider.IsColliding(c, offset.position + new Vector3(0.5f, 0f, 0.5f), Vector3.zero)) {
+                        return;
+                    }
+                }
+            }
+            
+
+            offset.SetType(BlockTypes.StoneSlab.type); 
         }
     }
     public void RenderHighlights() {
         Player player = entity as Player;
         if (player.RaycastBlock(playerCam.position, playerCam.forward, range, out Block block, out Vector3Int normal)) {
             WireframeRenderer.Instance.AddSelection(new SelectionBox(block.blockData.selection.colliders, block.position + new Vector3(0.5f, 0f, 0.5f)));
+            WireframeRenderer.Instance.AddDebugSelection(new SelectionBox(BlockTypes.Stone.type.collision.colliders, block.position + new Vector3(0.5f, 0f, 0.5f) + normal));
         }
+
+        
     }
 }

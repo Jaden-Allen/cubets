@@ -44,7 +44,7 @@ public class BlockRegistry : MonoBehaviour
         registryItems.Add("}");
         string joined = string.Join("\n", registryItems);
 
-        string blockTypesCsPath = Path.Combine(Application.dataPath, "Scripts", "Planet", "BlockTypes.cs");
+        string blockTypesCsPath = Path.Combine(Application.dataPath, "Scripts", "Planet", "Helper", "BlockTypes.cs");
         File.WriteAllText(blockTypesCsPath, joined);
         AssetDatabase.Refresh();
         Debug.Log($"Copied {blocks.Count} registry enums to the BlockTypes.cs!");

@@ -932,6 +932,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineMaterial: {fileID: 2100000, guid: 7276540bab47fcf418c2476cfaf3fc0a, type: 2}
+  collisionDebugMat: {fileID: 2100000, guid: 694467a16a64dfa42a765b9e66cf2f01, type: 2}
+  debugCollisions: 1
 --- !u!1 &1441231118
 GameObject:
   m_ObjectHideFlags: 0
@@ -1202,6 +1204,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7c5f3ea520a2e514c8fbe22e73580308, type: 2}
   - {fileID: 11400000, guid: e43e36356ef2b894d98859469fbc3259, type: 2}
   - {fileID: 11400000, guid: 4ea5126a05aeafe48b58ec8fadacdd20, type: 2}
+  - {fileID: 11400000, guid: d553affece3b811419336edd1f81e30c, type: 2}
+  - {fileID: 11400000, guid: cb187150ba90d37498025fd148b4650e, type: 2}
   - {fileID: 11400000, guid: f6de0a77bb820284e9df1b161db3d63e, type: 2}
 --- !u!114 &2106899797
 MonoBehaviour:
@@ -1219,6 +1223,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: beec4952081e4c84380666f45a020f1f, type: 2}
   - {fileID: 11400000, guid: 6be7d3c42f5b01447851889f0aa273a7, type: 2}
   - {fileID: 11400000, guid: e2c7b8bd2273fed4896c6b6176ec9b49, type: 2}
+  - {fileID: 11400000, guid: 1202d2dbf4891dd479ffe5aafece9606, type: 2}
+  - {fileID: 11400000, guid: e2b0d6a60d10209428c2c8bcb800beb9, type: 2}
 --- !u!4 &56778341687451496 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2633005851037161992, guid: cb8b49cc652378c4aa874e231dcecc64, type: 3}
