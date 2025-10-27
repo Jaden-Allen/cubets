@@ -114,6 +114,18 @@ public class EntityCollider : MonoBehaviour {
 
         return false;
     }
+    public Vector3[] GetHorizontalCorners(Vector3 position) {
+        Vector3 worldMin = min + position;
+        Vector3 worldMax = max + position;
+
+        return new Vector3[] {
+        new Vector3(worldMin.x, position.y, worldMin.z),
+        new Vector3(worldMax.x, position.y, worldMin.z),
+        new Vector3(worldMin.x, position.y, worldMax.z),
+        new Vector3(worldMax.x, position.y, worldMax.z)
+    };
+    }
+
 
     private void OnDrawGizmos() {
         Gizmos.color = new Color(0.1f, 1f, 0.1f);

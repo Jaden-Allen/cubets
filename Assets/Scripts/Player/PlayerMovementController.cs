@@ -79,13 +79,22 @@ public class PlayerMovementController : EntityComponent {
         if (!isGrounded || !isSneaking)
             return false;
 
-        // small offset to "peek" ahead of the player’s collider
-        Vector3 sneakOffset = direction * 0.01f + Vector3.down * 0.01f;
+        Vector3 stepCheck = direction.normalized * Mathf.Max(speed * Time.deltaTime, 0.05f);
+        Vector3[] corners = playerCollider.GetHorizontalCorners(transform.position + stepCheck);
 
-        bool willFall = !playerCollider.CheckCollisions(planet, sneakOffset);
+        int groundedCorners = 0;
 
-        return willFall;
+        foreach (var corner in corners) {
+            Vector3Int below = Vector3Int.FloorToInt(corner + Vector3.down * 0.1f);
+            Block block = planet.GetBlock(below);
+            if (block != null && block.blockData.collision.enabled)
+                groundedCorners++;
+        }
+
+        return groundedCorners == 0;
     }
+
+
 
     private void ApplyJump(bool ignoreLoops) {
         if (ignoreLoops) return;

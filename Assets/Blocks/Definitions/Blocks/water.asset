@@ -20,3 +20,10 @@ MonoBehaviour:
     - id: '*'
       asset: {fileID: 11400000, guid: a32c733c8d65014449c132bee74fa8db, type: 2}
   geometry: {fileID: 0}
+  collision:
+    enabled: 0
+    colliders: []
+  selection:
+    colliders: []
+  placeAudioClip: {fileID: 0}
+  destroyAudioClip: {fileID: 0}

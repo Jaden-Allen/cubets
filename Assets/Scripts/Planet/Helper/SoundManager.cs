@@ -14,7 +14,7 @@ public class SoundManager : MonoBehaviour
     }
 
     public void PlaySound(AudioClip clip, float volume, float pitch, Vector3 position, float minDistance, float maxDistance) {
-        if (sources.Count >= 20) return;
+        if (sources.Count >= 32) return;
 
         AudioSource source = Instantiate(audioSourcePrefab);
         source.transform.position = position;
