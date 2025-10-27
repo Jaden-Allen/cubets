@@ -6,9 +6,10 @@ public class Player : Entity
     public Camera playerCam;
     public EntityCollider playerCollider;
 
-    public bool RaycastBlock(Vector3 position, Vector3 direction, float distance, out Block block, out Vector3Int normal) {
+    public bool RaycastBlock(Vector3 position, Vector3 direction, float distance, out Block block, out Vector3 hit, out Vector3Int normal) {
         block = null;
         normal = Vector3Int.zero;
+        hit = Vector3.zero;
 
         if (!planet.hasGeneratedWorld)
             return false;
@@ -30,7 +31,7 @@ public class Player : Entity
             Block testBlock = planet.GetBlock(voxel);
             if (testBlock != null && !testBlock.isAir && testBlock.typeId != "water") {
                 foreach (var c in testBlock.blockData.selection.colliders) {
-                    if (c.Overlaps(currentPos, voxel + new Vector3(0.5f, 0f, 0.5f), direction, out normal)) {
+                    if (c.Overlaps(currentPos, voxel + new Vector3(0.5f, 0f, 0.5f), direction, out normal, out hit)) {
                         block = testBlock;
 
                         return true;

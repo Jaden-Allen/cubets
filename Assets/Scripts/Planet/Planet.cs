@@ -108,7 +108,7 @@ public class Planet : MonoBehaviour
 
         GenerateWorld();
     }
-    public uint GetVoxel(Vector3Int globalVoxelCoord) {
+    public (uint voxelIndex, byte rotatonIndex) GetVoxel(Vector3Int globalVoxelCoord) {
         Vector3Int chunkCoord = GlobalToChunkCoord(globalVoxelCoord);
 
         if (chunks.TryGetValue(chunkCoord, out Chunk chunk)) {
@@ -119,17 +119,17 @@ public class Planet : MonoBehaviour
                 ToLocalIndex(globalVoxelCoord.z)
             );
 
-            return chunk.GetBlockIndex(localPos);
+            return chunk.GetBlockData(localPos);
         }
 
         if (globalVoxelCoord.y < 0 || globalVoxelCoord.y > 255)
-            return BlockTypes.Air.registryIndex;
+            return (BlockTypes.Air.registryIndex, 0);
 
         int noiseSize = planetRadius * ChunkSize;
 
         if (globalVoxelCoord.x < 0 || globalVoxelCoord.z < 0 ||
             globalVoxelCoord.x >= noiseSize || globalVoxelCoord.z >= noiseSize)
-            return BlockTypes.Stone.registryIndex;
+            return (BlockTypes.Stone.registryIndex, 0);
 
 
         int index = globalVoxelCoord.z * noiseSize + globalVoxelCoord.x;
@@ -141,20 +141,24 @@ public class Planet : MonoBehaviour
 
         // --- Terrain composition ---
         if (globalVoxelCoord.y < terrainHeight - 4)
-            return BlockTypes.Stone.registryIndex;
+            return (BlockTypes.Stone.registryIndex, 0);
 
         if (globalVoxelCoord.y < terrainHeight)
-            return BlockTypes.Dirt.registryIndex;
+            return (BlockTypes.Dirt.registryIndex, 0);
 
-        if (globalVoxelCoord.y == terrainHeight)
-            return terrainHeight < waterLevel
-                ? BlockTypes.Sand.registryIndex
-                : BlockTypes.GrassBlock.registryIndex;
-
+        if (globalVoxelCoord.y == terrainHeight) {
+            if (terrainHeight < waterLevel) {
+                return (BlockTypes.Sand.registryIndex, 0);
+            }
+            else {
+                return (BlockTypes.GrassBlock.registryIndex, 0);
+            }
+        }
+            
         if (globalVoxelCoord.y <= waterLevel && globalVoxelCoord.y > terrainHeight)
-            return BlockTypes.Water.registryIndex;
+            return (BlockTypes.Water.registryIndex, 0);
 
-        return BlockTypes.Air.registryIndex;
+        return (BlockTypes.Air.registryIndex, 0);
     }
 
 
@@ -180,9 +184,12 @@ public class Planet : MonoBehaviour
         return new Block(this, globalVoxelCoord);
     }
     public BlockType GetBlockType(Vector3Int globalVoxelCoord) {
-        return BlockRegistry.indexToBlock[GetVoxel(globalVoxelCoord)];
+        return BlockRegistry.indexToBlock[GetVoxel(globalVoxelCoord).voxelIndex];
     }
-    public void SetBlockType(Vector3Int globalVoxelCoord, uint voxelType) {
+    public byte GetBlockRotation(Vector3Int globalVoxelCoord) {
+        return GetVoxel(globalVoxelCoord).rotatonIndex;
+    }
+    public void SetBlockType(Vector3Int globalVoxelCoord, uint voxelType, byte rotation) {
         Vector3Int chunkCoord = GlobalToChunkCoord(globalVoxelCoord);
         if (chunks.TryGetValue(chunkCoord, out Chunk chunk)) {
             Vector3Int localPos = new Vector3Int(
@@ -191,7 +198,7 @@ public class Planet : MonoBehaviour
                 ToLocalIndex(globalVoxelCoord.z)
             );
 
-            chunk.SetBlockType(localPos, voxelType);
+            chunk.SetBlockType(localPos, voxelType, rotation);
 
             if (markedDirtySet.Add(chunkCoord)) {
                 markedDirtyQueue.Enqueue(chunk);

@@ -41,6 +41,6 @@ public class Block {
 
     public Vector3 Center() => new Vector3(position.x + 0.5f, position.y + 0.5f, position.z + 0.5f);
 
-    public void SetType(BlockType type) => planet.SetBlockType(position, BlockRegistry.typeIdToIndex[type.id]);
+    public void SetType(BlockType type, byte rotation) => planet.SetBlockType(position, BlockRegistry.typeIdToIndex[type.id], rotation);
     //public void SetPermutation(BlockPermutation permutation) => world.SetPermutation(position, permutation);
 }

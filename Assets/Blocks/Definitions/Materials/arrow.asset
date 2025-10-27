@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d06f0f48e86193f45ab9c3e81348e33a, type: 3}
-  m_Name: slab
+  m_Script: {fileID: 11500000, guid: 794519cf3782e1645af657bcf31b1f29, type: 3}
+  m_Name: arrow
   m_EditorClassIdentifier: 
-  id: slab
-  model: {fileID: 4900000, guid: 706af2d9bc18b5f4ba632ccc25d6a693, type: 3}
+  id: arrow
+  texture: {fileID: 2800000, guid: 8de504d3153d71d43bd252773ee34a1d, type: 3}

@@ -10,6 +10,7 @@ public class BlockType : ScriptableObject {
     public BlockGeometryAsset geometry;
     public BlockCollisionComponent collision = new();
     public BlockSelectionComponent selection = new();
+    public BlockRotationPlacement placementType = BlockRotationPlacement.None;
     public AudioClip placeAudioClip;
     public AudioClip destroyAudioClip;
     public virtual void Setup() {}
@@ -81,4 +82,13 @@ public enum BlockRenderType {
     Vegetation,
     Water,
     Air
+}
+public enum BlockRotationPlacement {
+    None,       // Use the model’s default rotation
+    Cardinal,   // Place facing N/S/E/W based on player orientation
+    Pillar,     // Rotate the “top” of the model to align with the surface normal (like logs)
+    Full        // Like Cardinal + upside-down option if placing on the top half of a block (stairs, slabs)
+}
+public enum Direction : byte {
+    North = 0, East = 1, South = 2, West = 3, Up = 4, Down = 5
 }

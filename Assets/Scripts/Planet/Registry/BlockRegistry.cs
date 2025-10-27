@@ -12,12 +12,15 @@ public class BlockRegistry : MonoBehaviour
     public static Dictionary<uint, BlockType> indexToBlock = new Dictionary<uint, BlockType>();
     public static Dictionary<string, uint> typeIdToIndex = new Dictionary<string, uint>();
     
+    public static List<BlockType> Blocks = new List<BlockType>();
+
     public void Init() {
         uint index = 0;
         foreach (var block in blocks) {
             typeIdToBlock[block.id] = block;
             indexToBlock[index] = block;
             typeIdToIndex[block.id] = index;
+            Blocks.Add(block);
             block.Setup();
             index++;
         }
@@ -26,6 +29,7 @@ public class BlockRegistry : MonoBehaviour
         typeIdToBlock.Clear();
         indexToBlock.Clear();
         typeIdToIndex.Clear();
+        Blocks.Clear();
     }
     private void OnValidate() {
         blocks = blocks.OrderBy(b => b.id == "air" ? 0 : 1).ThenBy(b => b.id).ToList();

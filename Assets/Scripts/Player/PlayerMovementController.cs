@@ -33,6 +33,7 @@ public class PlayerMovementController : EntityComponent {
     public bool isMoving = false;
     public bool isSprinting = false;
     public bool isSneaking = false;
+    public bool isSneakHeld = false;
     public bool isCollidingOnMovement = false;
 
     private float speed = 0f;
@@ -49,22 +50,29 @@ public class PlayerMovementController : EntityComponent {
     }
     private void HandleInputs(bool ignoreLoops) {
         isGrounded = playerCollider.IsGrounded(planet, groundDistanceCheck);
-        isSneaking = Input.GetKey(sneakKey);
+
+        // Base sneak input from player key
+        isSneakHeld = Input.GetKey(sneakKey);
+
+        // Force sneaking if collider would otherwise intersect
+        bool mustSneak = !isSneakHeld && playerCollider.IsHeadHitting(planet, 0.01f);
+
+        isSneaking = isSneakHeld || mustSneak;
 
         inputs = ignoreLoops ? Vector2.zero : new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         movement = Vector3.Lerp(movement, transform.right * inputs.x + transform.forward * inputs.y, isGrounded ? 14f : 5f * Time.deltaTime);
 
         isMoving = inputs != Vector2.zero;
         isSprinting = !isSneaking && isMoving && Input.GetKey(sprintKey) && !isCollidingOnMovement && inputs.y > 0f;
-        
-        speed = Mathf.Lerp(speed, isSneaking ? sneakSpeed : isSprinting ? sprintSpeed : walkSpeed, speedChangeMultiplier * Time.deltaTime);
+
+        speed = Mathf.Lerp(speed, isCollidingOnMovement && !isGrounded ? sneakSpeed : isSneaking ? sneakSpeed : isSprinting ? sprintSpeed : walkSpeed, speedChangeMultiplier * Time.deltaTime);
     }
+
     private void HandleSneak(bool ignoreLoops) {
         if (ignoreLoops) return;
 
-        playerCollider.height = isSneaking ? 1.5f : 1.8f;
+        playerCollider.height = isSneaking ? 1.49f : 1.8f;
     }
-
     private void ApplyGravity() {
         velocity.y += gravity * Time.deltaTime;
 
@@ -124,6 +132,9 @@ public class PlayerMovementController : EntityComponent {
         Vector3 offsetZ = new Vector3(0f, 0f, delta.z);
         Vector3 offsetY = new Vector3(0f, delta.y, 0f);
 
+        isCollidingOnMovement = false; // reset at start
+
+        // Try full movement
         if (!playerCollider.CheckCollisions(planet, fullOffset)) {
             newPosition += fullOffset;
             transform.position = newPosition;
@@ -132,14 +143,17 @@ public class PlayerMovementController : EntityComponent {
 
         bool moved = false;
 
+        // Horizontal X movement
         if (Mathf.Abs(offsetX.x) > 0f) {
-            bool blockX = isSneaking && IsEdgeBlocked(Vector3.right * Mathf.Sign(offsetX.x));
+            bool blockX = isSneakHeld && IsEdgeBlocked(Vector3.right * Mathf.Sign(offsetX.x));
+
             if (!blockX) {
                 if (!playerCollider.CheckCollisions(planet, offsetX)) {
                     newPosition += offsetX;
                     moved = true;
                 }
-                else {
+                else if (isGrounded) {
+                    // Step up check
                     Vector3 stepUp = Vector3.up * stepHeight;
                     if (!playerCollider.CheckCollisions(planet, stepUp) &&
                         !playerCollider.CheckCollisions(planet, stepUp + offsetX)) {
@@ -147,20 +161,26 @@ public class PlayerMovementController : EntityComponent {
                         moved = true;
                     }
                     else {
-                        velocity.x = 0f;
+                        isCollidingOnMovement = true;
                     }
+                }
+                else {
+                    isCollidingOnMovement = true;
                 }
             }
         }
 
+        // Horizontal Z movement
         if (Mathf.Abs(offsetZ.z) > 0f) {
-            bool blockZ = isSneaking && IsEdgeBlocked(Vector3.forward * Mathf.Sign(offsetZ.z));
+            bool blockZ = isSneakHeld && IsEdgeBlocked(Vector3.forward * Mathf.Sign(offsetZ.z));
+
             if (!blockZ) {
                 if (!playerCollider.CheckCollisions(planet, offsetZ)) {
                     newPosition += offsetZ;
                     moved = true;
                 }
-                else {
+                else if (isGrounded) {
+                    // Step up check
                     Vector3 stepUp = Vector3.up * stepHeight;
                     if (!playerCollider.CheckCollisions(planet, stepUp) &&
                         !playerCollider.CheckCollisions(planet, stepUp + offsetZ)) {
@@ -168,12 +188,16 @@ public class PlayerMovementController : EntityComponent {
                         moved = true;
                     }
                     else {
-                        velocity.z = 0f;
+                        isCollidingOnMovement = true;
                     }
+                }
+                else {
+                    isCollidingOnMovement = true;
                 }
             }
         }
 
+        // Vertical movement
         if (!playerCollider.CheckCollisions(planet, offsetY)) {
             newPosition += offsetY;
         }
@@ -185,6 +209,4 @@ public class PlayerMovementController : EntityComponent {
             transform.position = newPosition;
         }
     }
-
-
 }

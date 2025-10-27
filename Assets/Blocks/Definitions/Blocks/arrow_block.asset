@@ -10,20 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43325d03c3c01844f80bb0e0696e5e97, type: 3}
-  m_Name: chest
+  m_Name: arrow_block
   m_EditorClassIdentifier: 
-  name: Chest
-  id: chest
+  name: Arrow Block
+  id: arrow_block
   materialInstances:
     renderType: 0
     definitions:
     - id: '*'
-      asset: {fileID: 11400000, guid: 69e56d57aad7ae745bc5f94e8aa92aac, type: 2}
-    - id: top
-      asset: {fileID: 11400000, guid: 69e56d57aad7ae745bc5f94e8aa92aac, type: 2}
-    - id: bottom
-      asset: {fileID: 11400000, guid: b265b3802c13c4f4f85975e15d7ab3a2, type: 2}
-  geometry: {fileID: 11400000, guid: beec4952081e4c84380666f45a020f1f, type: 2}
+      asset: {fileID: 11400000, guid: fadd82ec1b49beb49a98db35b0cc9e84, type: 2}
+  geometry: {fileID: 0}
   collision:
     enabled: 1
     colliders:

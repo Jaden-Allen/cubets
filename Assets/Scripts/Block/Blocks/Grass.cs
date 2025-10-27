@@ -29,7 +29,7 @@ public class Grass : BlockType
             if (belowOffset != null && belowOffset.typeId == BlockTypes.GrassBlock.typeId) {
                 var offsetBlock = e.block.Offset(new Vector3Int(randX, randY, randZ));
                 if (offsetBlock != null && offsetBlock.isAir) {
-                    offsetBlock.SetType(BlockTypes.Grass.type);
+                    offsetBlock.SetType(BlockTypes.Grass.type, 0);
                 }
             }
         }

@@ -26,6 +26,7 @@ public class Chunk {
     private Bounds bounds;
 
     private uint[,,] voxelMap = new uint[Planet.ChunkSize, Planet.ChunkSize, Planet.ChunkSize];
+    private byte[,,] rotationMap = new byte[Planet.ChunkSize, Planet.ChunkSize, Planet.ChunkSize];
 
     private Mesh mesh;
 
@@ -53,16 +54,17 @@ public class Chunk {
         mesh.MarkDynamic();
         meshFilter.mesh = mesh;
 
-        PopulateVoxelMap();
+        PopulateMaps();
         PopulateMeshData();
         ApplyMeshData();
     }
 
-    private void PopulateVoxelMap() {
+    private void PopulateMaps() {
         for (int x = 0; x < Planet.ChunkSize; x++) {
             for (int y = 0; y < Planet.ChunkSize; y++) {
                 for ( int z = 0; z < Planet.ChunkSize; z++) {
-                    voxelMap[x,y,z] = planet.GetVoxel(origin + new Vector3Int(x,y,z));
+                    voxelMap[x,y,z] = planet.GetVoxel(origin + new Vector3Int(x,y,z)).voxelIndex;
+                    rotationMap[x, y, z] = 0;
                 }
             }
         }
@@ -79,6 +81,7 @@ public class Chunk {
     }
     public void AddVoxelDataToChunk(Vector3Int localPos) {
         uint blockId = voxelMap[localPos.x, localPos.y, localPos.z];
+        byte rotation = rotationMap[localPos.x, localPos.y, localPos.z];
         BlockType blockType = BlockRegistry.indexToBlock[blockId];
         if (blockType) {
             if (blockType.MeshDataOverride(new Block(planet, localPos + origin), out MeshData meshData)) {
@@ -87,10 +90,10 @@ public class Chunk {
             else {
                 BlockGeometryAsset blockGeometry = blockType.geometry;
                 if (blockGeometry == null) {
-                    AddCubeDataToChunk(localPos, blockType);
+                    AddCubeDataToChunk(localPos, blockType, rotation);
                 }
                 else {
-                    AddCustomGeoDataToChunk(localPos, blockType);
+                    AddCustomGeoDataToChunk(localPos, blockType, rotation);
                 }
             }
         }
@@ -108,41 +111,64 @@ public class Chunk {
         };
     }
 
-    private void AddCustomGeoDataToChunk(Vector3Int localPos, BlockType block) {
-        if (BlockGeometryRegistry.GetBlockGeometry(block.geometry.id, out BlockGeometryFile geometry)) {
-            geometry.vertices.ForEach(v => { vertices.Add(v + localPos); colors.Add(block.VertexColorPaint(v, localPos + origin, planet)); });
+    private void AddCustomGeoDataToChunk(Vector3Int localPos, BlockType block, byte rotationIndex) {
+        Quaternion rotation = DecodeRotationFromByte(rotationIndex);
+        Vector3 pivot = Vector3.one * 0.5f;
 
-            var indicesToAddTo = block.materialInstances.renderType switch {
-                BlockRenderType.Opaque => opaqueIndices,
-                BlockRenderType.Transparent => transparentIndices,
-                BlockRenderType.Vegetation => vegetationIndices,
-                BlockRenderType.Water => waterIndices,
-                _ => opaqueIndices
-            };
-            geometry.indices.ForEach(i => indicesToAddTo.Add(i + vertexIndex));
-            geometry.normals.ForEach(n => normals.Add(n));
-
-            foreach (var uvItem in geometry.uvs) {
-                var uv = uvItem.Item1;
-                var textureKey = uvItem.Item2;
-                Rect textureRect = block.materialInstances.GetRect(textureKey);
-                uvs.Add(uv * textureRect.size + textureRect.min);
-            }
-            vertexIndex += geometry.vertices.Count;
-        }
-        else {
+        if (!BlockGeometryRegistry.GetBlockGeometry(block.geometry.id, out BlockGeometryFile geometry))
             throw new Exception($"Block geometry not found: {block.geometry.id}");
+
+        var indicesToAddTo = block.materialInstances.renderType switch {
+            BlockRenderType.Opaque => opaqueIndices,
+            BlockRenderType.Transparent => transparentIndices,
+            BlockRenderType.Vegetation => vegetationIndices,
+            BlockRenderType.Water => waterIndices,
+            _ => opaqueIndices
+        };
+
+        // Rotate and offset vertices & normals
+        for (int i = 0; i < geometry.vertices.Count; i++) {
+            Vector3 v = geometry.vertices[i];
+            Vector3 rotatedV = rotation * (v - pivot) + pivot + localPos;
+
+            vertices.Add(rotatedV);
+            colors.Add(block.VertexColorPaint(v, localPos + origin, planet));
         }
+
+        for (int i = 0; i < geometry.normals.Count; i++) {
+            normals.Add(rotation * geometry.normals[i]);
+        }
+
+        foreach (var uvItem in geometry.uvs) {
+            var uv = uvItem.Item1;
+            var textureKey = uvItem.Item2;
+            Rect textureRect = block.materialInstances.GetRect(textureKey);
+            uvs.Add(uv * textureRect.size + textureRect.min);
+        }
+
+        foreach (int i in geometry.indices) {
+            indicesToAddTo.Add(i + vertexIndex);
+        }
+
+        vertexIndex += geometry.vertices.Count;
     }
-    private void AddCubeDataToChunk(Vector3Int localPos, BlockType block) {
+
+    private void AddCubeDataToChunk(Vector3Int localPos, BlockType block, byte rotationIndex) {
+        
+        Quaternion rotation = DecodeRotationFromByte(rotationIndex);
+        Vector3 pivot = Vector3.one * 0.5f;
+
         for (int p = 0; p < 6; p++) {
-            BlockType neighbor = GetNeighbor(localPos, CubeMesh.Normals[p]);
+            BlockType neighbor = GetNeighbor(localPos, Vector3Int.RoundToInt(rotation * CubeMesh.Normals[p]));
             if (neighbor.materialInstances.renderType == BlockRenderType.Opaque) continue;
             if (block.materialInstances.renderType != BlockRenderType.Opaque && neighbor.id == block.id) continue;
 
             for (int i = 0; i < 4; i++) {
-                vertices.Add(CubeMesh.Vertices[CubeMesh.Indices[p, i]] + localPos);
-                normals.Add(CubeMesh.Normals[p]);
+                Vector3 vert = CubeMesh.Vertices[CubeMesh.Indices[p, i]];
+                Vector3 rotatedVert = rotation * (vert - pivot) + pivot;
+
+                vertices.Add(rotatedVert + localPos);
+                normals.Add(rotation * CubeMesh.Normals[p]);
 
                 Rect uvRect = block.materialInstances.GetRect(GeometryBuilder.GetKey(p));
                 uvs.Add(CubeMesh.Uvs[i] * uvRect.size + uvRect.min);
@@ -178,12 +204,23 @@ public class Chunk {
             return planet.GetBlockType(voxel + origin);
         }
     }
-    private uint GetVoxel(Vector3Int localVoxelCoord) {
-        if (IsVoxelCoordInChunkBounds(localVoxelCoord)) {
-            return voxelMap[localVoxelCoord.x, localVoxelCoord.y, localVoxelCoord.z];
+    public static byte EncodeRotationIndex(Quaternion rot) {
+        int closestIndex = 0;
+        float bestDot = -1f;
+        for (int i = 0; i < CubeMesh.CubeRotations.Length; i++) {
+            float dot = Mathf.Abs(Quaternion.Dot(rot, CubeMesh.CubeRotations[i]));
+            if (dot > bestDot) {
+                bestDot = dot;
+                closestIndex = i;
+            }
         }
-        return planet.GetVoxel(localVoxelCoord + origin);
+        return (byte)closestIndex;
     }
+    public static Quaternion DecodeRotationFromByte(byte b) {
+        return CubeMesh.CubeRotations[b % CubeMesh.CubeRotations.Length];
+    }
+
+
     private bool IsVoxelCoordInChunkBounds(Vector3Int voxelCoord) {
         return voxelCoord.x >= 0 && voxelCoord.y >= 0 && voxelCoord.z >= 0 && voxelCoord.x < Planet.ChunkSize && voxelCoord.y < Planet.ChunkSize && voxelCoord.z < Planet.ChunkSize;
     }
@@ -216,12 +253,13 @@ public class Chunk {
 
         isDirty = false;
     }
-    public void SetBlockType(Vector3Int localPos, uint voxelType) {
+    public void SetBlockType(Vector3Int localPos, uint voxelType, byte rotation) {
         voxelMap[localPos.x, localPos.y, localPos.z] = voxelType;
+        rotationMap[localPos.x, localPos.y, localPos.z] = rotation;
         isDirty = true;
     }
-    public uint GetBlockIndex(Vector3Int localPos) {
-        return voxelMap[localPos.x, localPos.y, localPos.z];
+    public (uint voxelIndex, byte rotationIndex) GetBlockData(Vector3Int localPos) {
+        return (voxelMap[localPos.x, localPos.y, localPos.z], rotationMap[localPos.x, localPos.y, localPos.z]);
     }
     public void OnDestroy() {
         GameObject.Destroy(chunkObject);

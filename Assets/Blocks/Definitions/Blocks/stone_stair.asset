@@ -37,3 +37,6 @@ MonoBehaviour:
       height: 1
       length: 1
       offset: {x: 0, y: 0, z: 0}
+  placementType: 3
+  placeAudioClip: {fileID: 0}
+  destroyAudioClip: {fileID: 0}

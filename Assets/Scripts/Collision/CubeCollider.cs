@@ -29,7 +29,7 @@ public class CubeCollider {
 
         return overlapX && overlapY && overlapZ;
     }
-    public bool Overlaps(Vector3 point, Vector3 colliderPosition, Vector3 direction, out Vector3Int normal) {
+    public bool Overlaps(Vector3 point, Vector3 colliderPosition, Vector3 direction, out Vector3Int normal, out Vector3 hitPoint) {
         Vector3 _min = min + colliderPosition;
         Vector3 _max = max + colliderPosition;
 
@@ -38,6 +38,7 @@ public class CubeCollider {
         bool overlapZ = point.z <= _max.z && point.z >= _min.z;
 
         normal = Vector3Int.zero;
+        hitPoint = Vector3.zero;
 
         if (!(overlapX && overlapY && overlapZ))
             return false;
@@ -46,21 +47,44 @@ public class CubeCollider {
         Vector3 halfSize = (_max - _min) * 0.5f;
         Vector3 localPoint = point - center;
 
-        float dx = (halfSize.x - Mathf.Abs(localPoint.x));
-        float dy = (halfSize.y - Mathf.Abs(localPoint.y));
-        float dz = (halfSize.z - Mathf.Abs(localPoint.z));
+        float dx = halfSize.x - Mathf.Abs(localPoint.x);
+        float dy = halfSize.y - Mathf.Abs(localPoint.y);
+        float dz = halfSize.z - Mathf.Abs(localPoint.z);
 
         float minPen = Mathf.Min(dx, Mathf.Min(dy, dz));
 
-        if (Mathf.Approximately(minPen, dx))
-            normal = new Vector3Int(-Mathf.RoundToInt(Mathf.Sign(direction.x)), 0, 0);
-        else if (Mathf.Approximately(minPen, dy))
-            normal = new Vector3Int(0, -Mathf.RoundToInt(Mathf.Sign(direction.y)), 0);
-        else
-            normal = new Vector3Int(0, 0, -Mathf.RoundToInt(Mathf.Sign(direction.z)));
+        // Determine collision normal and contact point
+        if (Mathf.Approximately(minPen, dx)) {
+            int sign = -Mathf.RoundToInt(Mathf.Sign(direction.x));
+            normal = new Vector3Int(sign, 0, 0);
+            hitPoint = new Vector3(
+                sign > 0 ? _max.x : _min.x,
+                Mathf.Clamp(point.y, _min.y, _max.y),
+                Mathf.Clamp(point.z, _min.z, _max.z)
+            );
+        }
+        else if (Mathf.Approximately(minPen, dy)) {
+            int sign = -Mathf.RoundToInt(Mathf.Sign(direction.y));
+            normal = new Vector3Int(0, sign, 0);
+            hitPoint = new Vector3(
+                Mathf.Clamp(point.x, _min.x, _max.x),
+                sign > 0 ? _max.y : _min.y,
+                Mathf.Clamp(point.z, _min.z, _max.z)
+            );
+        }
+        else {
+            int sign = -Mathf.RoundToInt(Mathf.Sign(direction.z));
+            normal = new Vector3Int(0, 0, sign);
+            hitPoint = new Vector3(
+                Mathf.Clamp(point.x, _min.x, _max.x),
+                Mathf.Clamp(point.y, _min.y, _max.y),
+                sign > 0 ? _max.z : _min.z
+            );
+        }
 
         return true;
     }
+
 
     [System.Serializable]
     public class Line {

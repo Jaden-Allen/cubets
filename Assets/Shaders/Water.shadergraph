@@ -2817,10 +2817,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -971.0000610351563,
-            "y": 119.00001525878906,
-            "width": 230.0,
-            "height": 95.00003051757813
+            "x": -961.0,
+            "y": 169.99998474121095,
+            "width": 230.00006103515626,
+            "height": 95.00001525878906
         }
     },
     "m_Slots": [
@@ -5076,13 +5076,13 @@
     },
     "m_Name": "Branch",
     "m_DrawState": {
-        "m_Expanded": true,
+        "m_Expanded": false,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -689.0,
-            "y": 171.0000457763672,
-            "width": 208.00003051757813,
-            "height": 326.0
+            "x": -710.0,
+            "y": 149.00001525878907,
+            "width": 170.0,
+            "height": 117.99998474121094
         }
     },
     "m_Slots": [
@@ -5105,7 +5105,7 @@
         "else"
     ],
     "m_Precision": 0,
-    "m_PreviewExpanded": true,
+    "m_PreviewExpanded": false,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
@@ -6962,10 +6962,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -1126.0001220703125,
-            "y": 146.00001525878907,
-            "width": 143.0001220703125,
-            "height": 34.000030517578128
+            "x": -1116.0,
+            "y": 197.0,
+            "width": 143.0,
+            "height": 34.0
         }
     },
     "m_Slots": [
@@ -8760,10 +8760,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -949.0000610351563,
-            "y": 252.00003051757813,
+            "x": -860.0,
+            "y": 133.99998474121095,
             "width": 129.00006103515626,
-            "height": 34.0
+            "height": 34.00001525878906
         }
     },
     "m_Slots": [

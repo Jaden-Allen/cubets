@@ -32,4 +32,22 @@ public static class CubeMesh {
         new Vector3Int(0, 1, 0),  // Top
         new Vector3Int(0, -1, 0)  // Bottom
     };
+    public static readonly Quaternion[] CubeRotations = new Quaternion[] {
+        Quaternion.Euler(0,0,0),
+        Quaternion.Euler(0,90,0),
+        Quaternion.Euler(0,180,0),
+        Quaternion.Euler(0,270,0),
+        Quaternion.Euler(90,0,0),
+        Quaternion.Euler(90,90,0),
+        Quaternion.Euler(90,180,0),
+        Quaternion.Euler(90,270,0),
+        Quaternion.Euler(180,0,0),
+        Quaternion.Euler(180,90,0),
+        Quaternion.Euler(180,180,0),
+        Quaternion.Euler(180,270,0),
+        Quaternion.Euler(270,0,0),
+        Quaternion.Euler(270,90,0),
+        Quaternion.Euler(270,180,0),
+        Quaternion.Euler(270,270,0),
+    };
 }

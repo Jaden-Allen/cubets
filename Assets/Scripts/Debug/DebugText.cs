@@ -8,6 +8,14 @@ public class DebugText : MonoBehaviour
 
     public TMP_Text coordsText;
     public TMP_Text targettedBlockText;
+    public TMP_Text heldBlockText;
+
+    private PlayerVoxelInteractionController voxelInteractionController;
+
+    private void Start() {
+        voxelInteractionController = player.GetPlayerComponent<PlayerVoxelInteractionController>();
+    }
+
     private void Update() {
         if (!planet.hasGeneratedWorld) return;
 
@@ -17,11 +25,13 @@ public class DebugText : MonoBehaviour
         coords.z = Mathf.Round(coords.z * 10f) / 10f;
         coordsText.text = $"Coords: {coords.x}, {coords.y}, {coords.z}";
 
-        if (player.RaycastBlock(player.playerCam.transform.position, player.playerCam.transform.forward, 6f, out Block block, out Vector3Int normal)) {
+        if (player.RaycastBlock(player.playerCam.transform.position, player.playerCam.transform.forward, 6f, out Block block, out _, out Vector3Int normal)) {
             targettedBlockText.text = $"Targetted Block: {block.blockData.name} at {block.position.x}, {block.position.y}, {block.position.z}";
         }
         else {
             targettedBlockText.text = $"Targetted Block: None";
         }
+
+        heldBlockText.text = $"Held Block: {voxelInteractionController.blockToPlace.name}";
     }
 }
