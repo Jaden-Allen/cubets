@@ -10,6 +10,8 @@ public class BlockType : ScriptableObject {
     public BlockGeometryAsset geometry;
     public BlockCollisionComponent collision = new();
     public BlockSelectionComponent selection = new();
+    public AudioClip placeAudioClip;
+    public AudioClip destroyAudioClip;
     public virtual void Setup() {}
     public virtual void OnPlaced(BlockPlacedEvent e) {}
     public virtual void OnDestroyed(BlockDestroyedEvent e) {}
